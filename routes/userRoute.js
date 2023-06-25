@@ -22,4 +22,6 @@ router
     userController.deleteUser
   );
 
+router.get("/:id/posts", userController.getPosts);
+
 module.exports = router;

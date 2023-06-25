@@ -20,4 +20,6 @@ router
     postController.deletePost
   );
 
+router.get("/:id/comments", postController.getPostComments);
+
 module.exports = router;

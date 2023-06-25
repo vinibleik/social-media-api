@@ -16,8 +16,6 @@ const postPermission = async (req, res, next) => {
   return res.status(403).json(response.failure("Unauthorized access"));
 };
 
-const getPostsByAuthor = async (req, res) => {};
-
 const getRelatedPosts = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -30,6 +28,30 @@ const getRelatedPosts = async (req, res) => {
     return res.status(200).json(response.success({ post, relatedPosts }));
   } catch (error) {
     return res.status(400).json(response.failure("Bad ID"));
+  }
+};
+
+const getPostComments = async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id, "-__v")
+      .populate("author", "name email _id")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "name email _id" },
+        select: "-__v",
+      });
+    if (!post) {
+      return res.status(400).json(response.failure("post not found"));
+    }
+
+    return res.status(200).json(
+      response.success({
+        post: post,
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(response.failure("Bad Post ID"));
   }
 };
 
@@ -115,8 +137,8 @@ const deletePost = async (req, res) => {
 
 module.exports = {
   postPermission,
-  getPostsByAuthor,
   getRelatedPosts,
+  getPostComments,
   newPost,
   getPost,
   updatePost,

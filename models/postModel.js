@@ -51,4 +51,10 @@ postSchema.methods.getRelatedPosts = async function (limit = 0, skip = 0) {
     .exec();
 };
 
+postSchema.virtual("comments", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "post",
+});
+
 module.exports = mongoose.model("Post", postSchema);

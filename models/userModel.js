@@ -31,7 +31,11 @@ const userSchema = new mongoose.Schema(
       set: (v) => (!v || v < 0 ? 0 : v),
     },
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+    timestamps: true,
+  }
 );
 
 userSchema.methods.checkPassword = async function (password) {

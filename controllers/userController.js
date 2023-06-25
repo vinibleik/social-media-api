@@ -117,8 +117,32 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const getPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate("posts", "-__v")
+      .exec();
+    if (!user) {
+      return res.status(400).json(response.failure("user not found"));
+    }
+    return res.status(200).json(
+      response.success({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        age: user.age,
+        posts: user.posts,
+      })
+    );
+  } catch (error) {
+    return res.status(400).json(response.failure("Bad ID"));
+  }
+};
+
 module.exports = {
   getUserById,
+  getPosts,
   getUserByEmail,
   userPermission,
   updateUser,
