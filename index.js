@@ -2,6 +2,7 @@ const express = require("express");
 const response = require("./helpers/response");
 const connectDB = require("./helpers/connectDB");
 const userRoute = require("./routes/userRoute");
+const postRoute = require("./routes/postRoute");
 require("dotenv").config();
 
 connectDB();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRoute);
+app.use("/post", postRoute);
 
 /**
  * Unavailable routes

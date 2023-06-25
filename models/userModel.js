@@ -49,6 +49,10 @@ userSchema.pre("save", async function (next) {
     }
   }
 
+  if (!this.name) {
+    this.name = this.email;
+  }
+
   return next();
 });
 
