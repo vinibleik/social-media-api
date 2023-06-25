@@ -21,7 +21,7 @@ app.use("/user", userRoute);
 app.use("/", (req, res) => {
   return res
     .status(404)
-    .json(response.failure(`Can not get the url "${req.url}"`));
+    .json(response.failure(`Can not get the url '${req.url}'`));
 });
 
 /**

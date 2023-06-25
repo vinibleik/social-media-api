@@ -17,12 +17,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: {
         values: ["user", "admin"],
-        message: `"{VALUE}" is not a valid role`,
+        message: "'{VALUE}' is not a valid role",
       },
       default: "user",
     },
-    name: String,
-    age: Number,
+    name: {
+      type: String,
+      default: "",
+    },
+    age: {
+      type: Number,
+      default: 0,
+      set: (v) => (!v || v < 0 ? 0 : v),
+    },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

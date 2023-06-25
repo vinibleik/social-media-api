@@ -5,7 +5,7 @@ module.exports = async () => {
     await mongoose.connect(process.env.MONGO_URI);
 
     const User = require("../models/userModel");
-    await User.deleteMany({});
+    // await User.deleteMany({});
 
     console.log("Database connected successfully");
   } catch (error) {
