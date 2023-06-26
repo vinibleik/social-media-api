@@ -22,7 +22,7 @@ const getRelatedPosts = async (req, res) => {
     if (!post) {
       return res.status(400).json(response.failure("post not found"));
     }
-    const limit = req.query.limit || 0;
+    const limit = req.query.limit || 5;
     const skip = req.query.skip || 0;
     const relatedPosts = await post.getRelatedPosts(limit, skip);
     return res.status(200).json(response.success({ post, relatedPosts }));
@@ -33,20 +33,17 @@ const getRelatedPosts = async (req, res) => {
 
 const getPostComments = async (req, res) => {
   try {
-    let post = await Post.findById(req.params.id, "-__v")
-      .populate("author", "name email _id")
-      .populate({
-        path: "comments",
-        populate: { path: "author", select: "name email _id" },
-        select: "-__v",
-      });
-    if (!post) {
-      return res.status(400).json(response.failure("post not found"));
-    }
+    let comments = await mongoose
+      .model("Comment")
+      .find({ post: req.params.id }, "-__v", {
+        limit: parseInt(req.query.limit) || 5,
+        skip: parseInt(req.query.skip) || 0,
+      })
+      .populate("author", "name");
 
     return res.status(200).json(
       response.success({
-        post: post,
+        comments,
       })
     );
   } catch (error) {
@@ -81,14 +78,20 @@ const newPost = async (req, res) => {
 
 const getPost = async (req, res) => {
   try {
-    let post = await Post.findById(req.params.id, "-__v");
+    let post = await Post.findById(req.params.id, "-__v")
+      .populate("author", "name email")
+      .populate({
+        path: "comments",
+        select: "-__v",
+        perDocumentLimit: parseInt(req.query.comLimit) || 5,
+        populate: {
+          path: "author",
+          select: "name email",
+        },
+      });
     if (!post) {
       return res.status(400).json(response.failure("post not found"));
     }
-    post = await post.populate("author", "name email _id");
-    // let retPost = post.toObject();
-    // delete retPost._id;
-    // delete retPost.author._id;
     return res.status(200).json(
       response.success({
         post: post,

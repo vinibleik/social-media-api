@@ -21,13 +21,13 @@ const getUserById = async (req, res) => {
       var posts = await mongoose
         .model("Post")
         .find({ author: user._id }, "-__v", {
-          limit: parseInt(req.query.pLimit) || 0,
+          limit: parseInt(req.query.pLimit) || 5,
           skip: parseInt(req.query.pSkip) || 0,
         })
         .populate({
           path: "comments",
           select: "-__v",
-          perDocumentLimit: parseInt(req.query.comLimit) || 0,
+          perDocumentLimit: parseInt(req.query.comLimit) || 5,
           populate: {
             path: "author",
             select: "name id",
@@ -143,13 +143,13 @@ const getPosts = async (req, res) => {
     const posts = await mongoose
       .model("Post")
       .find({ author: user._id }, "-__v", {
-        limit: parseInt(req.query.pLimit) || 0,
+        limit: parseInt(req.query.pLimit) || 10,
         skip: parseInt(req.query.pSkip) || 0,
       })
       .populate({
         path: "comments",
         select: "-__v",
-        perDocumentLimit: parseInt(req.query.comLimit) || 0,
+        perDocumentLimit: parseInt(req.query.comLimit) || 5,
         populate: {
           path: "author",
           select: "name id",
