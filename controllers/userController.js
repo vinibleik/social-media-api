@@ -12,19 +12,35 @@ const userPermission = async (req, res, next) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    let user = await User.findById(req.params.id, "-__v -password");
     if (!user) {
       return res.status(400).json(response.failure("user not found"));
     }
-    return res.status(200).json(
-      response.success({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        age: user.age,
-      })
-    );
+
+    if (req.query.posts === "true") {
+      var posts = await mongoose
+        .model("Post")
+        .find({ author: user._id }, "-__v", {
+          limit: parseInt(req.query.pLimit) || 0,
+          skip: parseInt(req.query.pSkip) || 0,
+        })
+        .populate({
+          path: "comments",
+          select: "-__v",
+          perDocumentLimit: parseInt(req.query.comLimit) || 0,
+          populate: {
+            path: "author",
+            select: "name id",
+          },
+        });
+
+      user = {
+        user,
+        posts,
+      };
+    }
+
+    return res.status(200).json(response.success(user));
   } catch (error) {
     return res.status(400).json(response.failure("Bad ID"));
   }
@@ -119,20 +135,37 @@ const deleteUser = async (req, res) => {
 
 const getPosts = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id)
-      .populate("posts", "-__v")
-      .exec();
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(400).json(response.failure("user not found"));
     }
+
+    const posts = await mongoose
+      .model("Post")
+      .find({ author: user._id }, "-__v", {
+        limit: parseInt(req.query.pLimit) || 0,
+        skip: parseInt(req.query.pSkip) || 0,
+      })
+      .populate({
+        path: "comments",
+        select: "-__v",
+        perDocumentLimit: parseInt(req.query.comLimit) || 0,
+        populate: {
+          path: "author",
+          select: "name id",
+        },
+      });
+
     return res.status(200).json(
       response.success({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        age: user.age,
-        posts: user.posts,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          age: user.age,
+        },
+        posts: posts,
       })
     );
   } catch (error) {
