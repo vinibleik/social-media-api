@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const User = require("./userModel");
 
 const postSchema = new mongoose.Schema(
   {
@@ -14,7 +13,7 @@ const postSchema = new mongoose.Schema(
       required: [true, "Posts can't be anonymous"],
       validate: {
         validator: async function (id) {
-          const user = await User.findById(id);
+          const user = await mongoose.model("User").findById(id);
           return !!user;
         },
         message: "User does not exist!",
@@ -47,8 +46,16 @@ postSchema.methods.getRelatedPosts = async function (limit = 0, skip = 0) {
       limit: limit,
       skip: skip,
     })
-    .populate("author", "name email")
-    .exec();
+    .populate("author", "name email");
+};
+
+postSchema.methods.getPeopleLiked = async function (limit = 0, skip = 0) {
+  return await mongoose
+    .model("User")
+    .find({ likedPosts: this._id })
+    .limit(limit)
+    .skip(skip)
+    .select("name email");
 };
 
 postSchema.virtual("comments", {

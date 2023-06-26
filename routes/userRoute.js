@@ -23,5 +23,6 @@ router
   );
 
 router.get("/:id/posts", userController.getPosts);
+router.get("/:id/likes", userController.getUserLikes);
 
 module.exports = router;

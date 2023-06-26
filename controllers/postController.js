@@ -16,18 +16,67 @@ const postPermission = async (req, res, next) => {
   return res.status(403).json(response.failure("Unauthorized access"));
 };
 
+const likePost = async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(400).json(response.failure("post not found"));
+    } else if (post.author == req.user._id) {
+      return res
+        .status(400)
+        .json(response.failure("Can't like your own post!"));
+    }
+
+    let user = await mongoose.model("User").findById(req.user._id);
+
+    const containPost = user.likedPosts.indexOf(post._id);
+    let inc = 0;
+    if (containPost === -1) {
+      user.likedPosts.push(post._id);
+      inc = 1;
+    } else {
+      user.likedPosts.splice(containPost, 1);
+      inc = -1;
+    }
+    await post.updateOne({ $inc: { votes: inc } }, { new: true });
+    await user.save();
+    return res.status(200).json(
+      response.success({
+        votes: post.votes + inc,
+      })
+    );
+  } catch (e) {
+    return res.status(500).json(response.failure("Server Error"));
+  }
+};
+
+const getLikes = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(400).json(response.failure("post not found"));
+    }
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = parseInt(req.query.skip) || 0;
+    const likes = await post.getPeopleLiked(limit, skip);
+    return res.status(200).json(response.success({ post, likes }));
+  } catch (error) {
+    return res.status(400).json(response.failure("Bad Post ID"));
+  }
+};
+
 const getRelatedPosts = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) {
       return res.status(400).json(response.failure("post not found"));
     }
-    const limit = req.query.limit || 5;
-    const skip = req.query.skip || 0;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = parseInt(req.query.skip) || 0;
     const relatedPosts = await post.getRelatedPosts(limit, skip);
     return res.status(200).json(response.success({ post, relatedPosts }));
   } catch (error) {
-    return res.status(400).json(response.failure("Bad ID"));
+    return res.status(400).json(response.failure("Bad Post ID"));
   }
 };
 
@@ -61,7 +110,7 @@ const newPost = async (req, res) => {
     let post = await Post.create(req.body);
     return res.status(200).json(
       response.success({
-        message: "Successfully created user",
+        message: "Successfully created Post",
         post,
       })
     );
@@ -146,4 +195,6 @@ module.exports = {
   getPost,
   updatePost,
   deletePost,
+  likePost,
+  getLikes,
 };

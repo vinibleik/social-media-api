@@ -12,7 +12,7 @@ const userPermission = async (req, res, next) => {
 
 const getUserById = async (req, res) => {
   try {
-    let user = await User.findById(req.params.id, "-__v -password");
+    let user = await User.findById(req.params.id, "-__v -password -likedPosts");
     if (!user) {
       return res.status(400).json(response.failure("user not found"));
     }
@@ -67,6 +67,25 @@ const getUserByEmail = async (req, res) => {
     );
   } catch (error) {
     return res.status(400).json(response.failure("Bad email"));
+  }
+};
+
+const getUserLikes = async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id, "-__v -password");
+    if (!user) {
+      return res.status(400).json(response.failure("user not found"));
+    }
+
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = parseInt(req.query.skip) || 0;
+
+    const likedPosts = await user.getLikedPosts(limit, skip);
+
+    return res.status(200).json(response.success({ user, likedPosts }));
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(response.failure("Bad User ID"));
   }
 };
 
@@ -177,6 +196,7 @@ module.exports = {
   getUserById,
   getPosts,
   getUserByEmail,
+  getUserLikes,
   userPermission,
   updateUser,
   deleteUser,

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const Post = require("./postModel");
 
 const userSchema = new mongoose.Schema(
   {
@@ -30,6 +31,19 @@ const userSchema = new mongoose.Schema(
       default: 0,
       set: (v) => (!v || v < 0 ? 0 : v),
     },
+    likedPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+        validate: {
+          validator: async function (id) {
+            const post = await Post.findById(id);
+            return !!post;
+          },
+          message: "This Post ID does not exist!",
+        },
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -40,6 +54,15 @@ const userSchema = new mongoose.Schema(
 
 userSchema.methods.checkPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.getLikedPosts = async function (limit, skip) {
+  return await mongoose
+    .model("Post")
+    .find({ _id: { $in: this.likedPosts } })
+    .limit(limit)
+    .skip(skip)
+    .select("-__v");
 };
 
 userSchema.pre("save", async function (next) {
