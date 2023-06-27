@@ -235,7 +235,11 @@ const populateDB = async (req, res) => {
   } catch (e) {
     return res
       .status(500)
-      .json({ status: false, error: "Database is already populated!" });
+      .json({
+        status: false,
+        error:
+          "Error in populate Database. Maybe it's already popluted. Clean your database before to install!",
+      });
   }
 };
 

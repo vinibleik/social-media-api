@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const authController = require("../controllers/authController");
 const postController = require("../controllers/postController");
+const queryParser = require("../helpers/queryParser");
 
 router.post("/new", authController.authVerify, postController.newPost);
-router.get("/related_posts/:id", postController.getRelatedPosts);
+router.get("/related_posts/:id", queryParser, postController.getRelatedPosts);
 
 router
   .route("/:id")
@@ -19,8 +20,13 @@ router
     postController.deletePost
   );
 
-router.get("/:id/comments", postController.getPostComments);
-router.get("/:id/like", authController.authVerify, postController.likePost);
-router.get("/:id/postlikes", postController.getLikes);
+router.get("/:id/comments", queryParser, postController.getPostComments);
+router.get(
+  "/:id/like",
+  queryParser,
+  authController.authVerify,
+  postController.likePost
+);
+router.get("/:id/postlikes", queryParser, postController.getLikes);
 
 module.exports = router;

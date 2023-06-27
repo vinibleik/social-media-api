@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const authController = require("../controllers/authController");
 const userController = require("../controllers/userController");
+const queryParser = require("../helpers/queryParser");
 
 /** Authentication */
 router.post("/signup", authController.newAdminVerify, authController.signup);
@@ -10,7 +11,7 @@ router.post("/login", authController.login);
 router.get("/email", userController.getUserByEmail);
 router
   .route("/:id")
-  .get(userController.getUserById)
+  .get(queryParser, userController.getUserById)
   .put(
     authController.authVerify,
     userController.userPermission,
@@ -22,7 +23,7 @@ router
     userController.deleteUser
   );
 
-router.get("/:id/posts", userController.getPosts);
-router.get("/:id/likes", userController.getUserLikes);
+router.get("/:id/posts", queryParser, userController.getPosts);
+router.get("/:id/likes", queryParser, userController.getUserLikes);
 
 module.exports = router;

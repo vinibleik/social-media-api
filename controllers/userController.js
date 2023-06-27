@@ -21,13 +21,14 @@ const getUserById = async (req, res) => {
       var posts = await mongoose
         .model("Post")
         .find({ author: user._id }, "-__v", {
-          limit: parseInt(req.query.pLimit) || 5,
-          skip: parseInt(req.query.pSkip) || 0,
+          limit: /*parseInt(req.query.pLimit) || 5*/ req.query.limit,
+          skip: /*parseInt(req.query.pSkip) || 0*/ req.query.skip,
         })
         .populate({
           path: "comments",
           select: "-__v",
-          perDocumentLimit: parseInt(req.query.comLimit) || 5,
+          perDocumentLimit:
+            /*parseInt(req.query.comLimit) || 5*/ req.query.comLimit,
           populate: {
             path: "author",
             select: "name id",
@@ -77,10 +78,13 @@ const getUserLikes = async (req, res) => {
       return res.status(400).json(response.failure("user not found"));
     }
 
-    const limit = parseInt(req.query.limit) || 5;
-    const skip = parseInt(req.query.skip) || 0;
+    // const limit = parseInt(req.query.limit) || 5;
+    // const skip = parseInt(req.query.skip) || 0;
 
-    const likedPosts = await user.getLikedPosts(limit, skip);
+    const likedPosts = await user.getLikedPosts(
+      req.query.limit,
+      req.query.skip
+    );
 
     return res.status(200).json(response.success({ user, likedPosts }));
   } catch (error) {
@@ -162,13 +166,14 @@ const getPosts = async (req, res) => {
     const posts = await mongoose
       .model("Post")
       .find({ author: user._id }, "-__v", {
-        limit: parseInt(req.query.pLimit) || 10,
-        skip: parseInt(req.query.pSkip) || 0,
+        limit: /*parseInt(req.query.pLimit) || 10*/ req.query.limit,
+        skip: /*parseInt(req.query.pSkip) || 0*/ req.query.skip,
       })
       .populate({
         path: "comments",
         select: "-__v",
-        perDocumentLimit: parseInt(req.query.comLimit) || 5,
+        perDocumentLimit:
+          /*parseInt(req.query.comLimit) || 5*/ req.query.comLimit,
         populate: {
           path: "author",
           select: "name id",

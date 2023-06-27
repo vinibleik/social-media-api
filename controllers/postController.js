@@ -56,9 +56,9 @@ const getLikes = async (req, res) => {
     if (!post) {
       return res.status(400).json(response.failure("post not found"));
     }
-    const limit = parseInt(req.query.limit) || 5;
-    const skip = parseInt(req.query.skip) || 0;
-    const likes = await post.getPeopleLiked(limit, skip);
+    // const limit = parseInt(req.query.limit) || 5;
+    // const skip = parseInt(req.query.skip) || 0;
+    const likes = await post.getPeopleLiked(req.query.limit, req.query.skip);
     return res.status(200).json(response.success({ post, likes }));
   } catch (error) {
     return res.status(400).json(response.failure("Bad Post ID"));
@@ -71,9 +71,12 @@ const getRelatedPosts = async (req, res) => {
     if (!post) {
       return res.status(400).json(response.failure("post not found"));
     }
-    const limit = parseInt(req.query.limit) || 5;
-    const skip = parseInt(req.query.skip) || 0;
-    const relatedPosts = await post.getRelatedPosts(limit, skip);
+    // const limit = parseInt(req.query.limit) || 5;
+    // const skip = parseInt(req.query.skip) || 0;
+    const relatedPosts = await post.getRelatedPosts(
+      req.query.limit,
+      req.query.skip
+    );
     return res.status(200).json(response.success({ post, relatedPosts }));
   } catch (error) {
     return res.status(400).json(response.failure("Bad Post ID"));
@@ -85,8 +88,8 @@ const getPostComments = async (req, res) => {
     let comments = await mongoose
       .model("Comment")
       .find({ post: req.params.id }, "-__v", {
-        limit: parseInt(req.query.limit) || 5,
-        skip: parseInt(req.query.skip) || 0,
+        limit: /*parseInt(req.query.limit) || 5*/ req.query.limit,
+        skip: /*parseInt(req.query.skip) || 0*/ req.query.skip,
       })
       .populate("author", "name");
 
