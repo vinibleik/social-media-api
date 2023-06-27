@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const User = require("./userModel");
-const Post = require("./postModel");
 
 const commentSchema = new mongoose.Schema(
   {
@@ -10,7 +8,7 @@ const commentSchema = new mongoose.Schema(
       required: [true, "Comments must be part of a Post"],
       validate: {
         validator: async function (id) {
-          const post = await Post.findById(id);
+          const post = await mongoose.model("Post").findById(id);
           return !!post;
         },
         message: "Post does not exist!",
@@ -22,7 +20,7 @@ const commentSchema = new mongoose.Schema(
       required: [true, "Comments can't be anonymous"],
       validate: {
         validator: async function (id) {
-          const user = await User.findById(id);
+          const user = await mongoose.model("User").findById(id);
           return !!user;
         },
         message: "User does not exist!",

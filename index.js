@@ -1,6 +1,7 @@
 const express = require("express");
 const response = require("./helpers/response");
 const connectDB = require("./helpers/connectDB");
+const populateDB = require("./helpers/install");
 const userRoute = require("./routes/userRoute");
 const postRoute = require("./routes/postRoute");
 const commentRoute = require("./routes/commentRoute");
@@ -18,6 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/user", userRoute);
 app.use("/post", postRoute);
 app.use("/comment", commentRoute);
+
+app.get("/install", populateDB);
 
 /**
  * Unavailable routes

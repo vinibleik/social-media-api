@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Post = require("./postModel");
 
 const userSchema = new mongoose.Schema(
   {
@@ -37,7 +36,7 @@ const userSchema = new mongoose.Schema(
         ref: "Post",
         validate: {
           validator: async function (id) {
-            const post = await Post.findById(id);
+            const post = await mongoose.model("Post").findById(id);
             return !!post;
           },
           message: "This Post ID does not exist!",
