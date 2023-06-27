@@ -208,29 +208,35 @@ const randomNumber = (max, min) => {
 };
 
 const populateDB = async (req, res) => {
-  let users = await User.create(usersData);
+  try {
+    let users = await User.create(usersData);
 
-  postsData.forEach((element, index) => {
-    element.title = `Post Title #${index}`;
-    element.author = users[randomNumber(users.length, 0)].id;
-  });
+    postsData.forEach((element, index) => {
+      element.title = `Post Title #${index}`;
+      element.author = users[randomNumber(users.length, 0)].id;
+    });
 
-  let posts = await Post.create(postsData);
+    let posts = await Post.create(postsData);
 
-  commentsData.forEach((element) => {
-    element.post = posts[randomNumber(posts.length, 0)].id;
-    element.author = users[randomNumber(users.length, 0)].id;
-  });
+    commentsData.forEach((element) => {
+      element.post = posts[randomNumber(posts.length, 0)].id;
+      element.author = users[randomNumber(users.length, 0)].id;
+    });
 
-  let comments = await Comment.create(commentsData);
+    let comments = await Comment.create(commentsData);
 
-  res.status(200).json({
-    status: true,
-    message: "Database successfully populated",
-    nUserCreated: users.length,
-    nPostsCreated: posts.length,
-    nCommentsCreated: comments.length,
-  });
+    return res.status(200).json({
+      status: true,
+      message: "Database successfully populated",
+      nUserCreated: users.length,
+      nPostsCreated: posts.length,
+      nCommentsCreated: comments.length,
+    });
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ status: false, error: "Database is already populated!" });
+  }
 };
 
 module.exports = populateDB;
